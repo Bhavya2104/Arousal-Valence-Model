@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+     <link rel="stylesheet" href="Home_style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+</head>
+<body>
+    <nav class="navbar navbar-expand-xxl navbar-light bg-light">
+        <div class="container-fluid d-flex justify-content-between align-items-center">
+        	<h1 class="fw-light 
+               fst-italic 
+               text-center 
+               text-primary navbar-brand" style="font-size: 3rem;">
+        			Arousal Valence Model
+    		</h1>
+            <!-- <a class="navbar-brand" href="#" style="font-size: 3rem;">Arousal Valence Model</a> -->
+            <div>
+                <button class="btn btn-outline-primary" type="submit" style="font-size: 1.1rem;">Generate Graph</button>
+                <button class="btn btn-outline-danger me-2" type="submit" style="font-size: 1.1rem;">Erase Data</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container d-flex justify-content-center align-items-center mt-3" style="height: 80vh;">
+        <div class="card" style="width: 24rem;">
+            <img src="photo.jpeg" class="card-img-top img-thumbnail" alt="..." style="max-height: 350px; object-fit: cover;">
+            <div class="card-body">
+                <h3 class="card-title fst-bold">Select the Game</h3>
+                <select class="form-select" aria-label="Default select example">
+                    <option selected disabled>Select</option>
+                    <option value="1">Option 1</option>
+                    <option value="2">Option 2</option>
+                    <option value="3">Option 3</option>
+                </select>
+                <button class="btn btn-outline-primary mt-3" type="submit" style="font-size: 1.1rem;">Enter</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-VcddAJx3bxTL6nM7fFDLqaxM6g8Xwz9hbrWEJMKg3F9fNp4LTjV6pYJHJQFzRlfC" crossorigin="anonymous"></script>
+</body>
+</html>
