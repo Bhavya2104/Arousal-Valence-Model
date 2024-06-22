@@ -63,6 +63,10 @@
         {% else %}
         <div class="alert alert-info">
             {{ msg }}
+
+            <form method="" action="{% url 'report' %}" class="d-inline">
+                <button type="submit" class="btn btn-outline-primary" style="font-size: 1.1rem;">See full report</button>
+            </form>
         </div>
         {% endif %}
     </div>

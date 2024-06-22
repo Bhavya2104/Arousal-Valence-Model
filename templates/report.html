@@ -1,9 +1,28 @@
-{% for session in sessions%}
-    <h2>
-    {{session.gameid}}
-    {{session.valence}}
-    {{session.arousal}}
-    {{session.intensity}}
-    </h2>
-    <br>
-{% endfor %}
+{% extends "nav.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Game Session Report</h1>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">Game ID</th>
+                <th scope="col">Average Valence</th>
+                <th scope="col">Average Arousal</th>
+                <th scope="col">Average Intensity</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for session in sessions %}
+            <tr>
+                <th scope="row">{{ session.gameid }}</th>
+                <td>{{ session.avg_valence }}</td>
+                <td>{{ session.avg_arousal }}</td>
+                <td>{{ session.avg_intensity }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <img src="{% url 'generate_graph' %}" alt="Graph of Averages">
+</div>
+{% endblock %}

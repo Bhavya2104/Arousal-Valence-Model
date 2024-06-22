@@ -3,6 +3,12 @@ from .forms import ArousalForm
 from django.shortcuts import redirect
 # Create your views here.
 from .models import GameSession
+import matplotlib.pyplot as plt
+import numpy as np
+from io import BytesIO
+from django.http import HttpResponse
+
+
 
 def get_emotion(valence, arousal, intensity):
    emotion_table = {
@@ -160,15 +166,83 @@ def game(request):
    return render(request, 'game.html')
 
 
-def report(request):
-   sessions = GameSession.objects.all()
-   context = {
-      'sessions': sessions
-   }
-   print(sessions)
-   return render(request, 'report.html', context)
-
 def erase(request):
    if request.method == 'POST':
         GameSession.objects.all().delete()
         return redirect('game')  # Redirect to the home view or any other view you prefer
+   # return render(request, 'confirm_delete.html')
+   # return redirect('game')
+   
+   
+def report(request):
+    sessions = GameSession.objects.all()
+    game_sessions = {}
+
+    for session in sessions:
+        if session.gameid not in game_sessions:
+            game_sessions[session.gameid] = {'valence': [], 'arousal': [], 'intensity': []}
+        game_sessions[session.gameid]['valence'].append(int(session.valence))
+        game_sessions[session.gameid]['arousal'].append(int(session.arousal))
+        game_sessions[session.gameid]['intensity'].append(int(session.intensity))
+
+    averaged_sessions = []
+    for gameid, values in game_sessions.items():
+        avg_valence = np.mean(values['valence'])
+        avg_arousal = np.mean(values['arousal'])
+        avg_intensity = np.mean(values['intensity'])
+        averaged_sessions.append({
+            'gameid': gameid,
+            'avg_valence': avg_valence,
+            'avg_arousal': avg_arousal,
+            'avg_intensity': avg_intensity,
+        })
+
+    context = {
+        'sessions': averaged_sessions
+    }
+    return render(request, 'report.html', context)
+
+
+def generate_graph(request):
+    sessions = GameSession.objects.all()
+    game_sessions = {}
+
+    for session in sessions:
+        if session.gameid not in game_sessions:
+            game_sessions[session.gameid] = {'valence': [], 'arousal': [], 'intensity': []}
+        game_sessions[session.gameid]['valence'].append(int(session.valence))
+        game_sessions[session.gameid]['arousal'].append(int(session.arousal))
+        game_sessions[session.gameid]['intensity'].append(int(session.intensity))
+
+    averaged_sessions = []
+    for gameid, values in game_sessions.items():
+        avg_valence = np.mean(values['valence'])
+        avg_arousal = np.mean(values['arousal'])
+        avg_intensity = np.mean(values['intensity'])
+        averaged_sessions.append({
+            'gameid': gameid,
+            'avg_valence': avg_valence,
+            'avg_arousal': avg_arousal,
+            'avg_intensity': avg_intensity,
+        })
+
+    game_ids = [session['gameid'] for session in averaged_sessions]
+    avg_valences = [session['avg_valence'] for session in averaged_sessions]
+    avg_arousals = [session['avg_arousal'] for session in averaged_sessions]
+    avg_intensities = [session['avg_intensity'] for session in averaged_sessions]
+
+    plt.figure(figsize=(10, 5))
+
+    scatter = plt.scatter(avg_valences, avg_arousals, c=avg_intensities, cmap='viridis', alpha=0.6, edgecolors='w', s=100)
+    plt.colorbar(scatter, label='Intensity')
+    plt.xlabel('Average Valence')
+    plt.ylabel('Average Arousal')
+    plt.title('2D Graph of Average Valence and Arousal')
+
+    for i, game_id in enumerate(game_ids):
+        plt.annotate(game_id, (avg_valences[i], avg_arousals[i]))
+
+    buffer = BytesIO()
+    plt.savefig(buffer, format='png')
+    buffer.seek(0)
+    return HttpResponse(buffer.getvalue(), content_type='image/png')

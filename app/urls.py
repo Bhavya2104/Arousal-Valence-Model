@@ -6,5 +6,6 @@ urlpatterns = [
    path('<int:id>', views.home, name='home'),
    path('', views.game, name='game'),
    path('report', views.report, name='report'),
-   path('erase', views.erase , name = "erase")
+   path('erase', views.erase , name = "erase"),
+   path('generate_graph/', views.generate_graph, name='generate_graph'),
 ]
