@@ -1,7 +1,8 @@
 from django.shortcuts import render
 from .forms import ArousalForm
+from django.shortcuts import redirect
 # Create your views here.
-
+from .models import GameSession
 
 def get_emotion(valence, arousal, intensity):
    emotion_table = {
@@ -133,17 +134,41 @@ def get_emotion(valence, arousal, intensity):
     }
    return emotion_table.get((valence, arousal, intensity), "Unknown Emotion")
 
-def home(request):
+# def home(request):
+def home(request,id):
    form = ArousalForm()
    msg = ""
    if(request.method == 'POST'):
       ArousalVal = request.POST['Arousal']
       ValenceVal = request.POST['Valence']
       IntensityVal = request.POST['Intensity']
-      msg = ArousalVal+ValenceVal+IntensityVal+get_emotion(ArousalVal, ValenceVal, IntensityVal)
+      msg = ValenceVal+ArousalVal+IntensityVal+get_emotion(ArousalVal, ValenceVal, IntensityVal)
+      session = GameSession(gameid=id, arousal=ArousalVal, valence=ValenceVal, intensity=IntensityVal)
+      session.save()
    context = {
       'form': form,
-      'msg': msg
+      'msg': msg,
+      'game_id':id
    }
    # print(form)
    return render(request, 'home.html',context)
+
+def game(request):
+   if(request.method == 'POST'):
+      gameid = request.POST['gameid']
+      return redirect('home', gameid)
+   return render(request, 'game.html')
+
+
+def report(request):
+   sessions = GameSession.objects.all()
+   context = {
+      'sessions': sessions
+   }
+   print(sessions)
+   return render(request, 'report.html', context)
+
+def erase(request):
+   if request.method == 'POST':
+        GameSession.objects.all().delete()
+        return redirect('game')  # Redirect to the home view or any other view you prefer

@@ -1,43 +1,22 @@
+{% extends "nav.html" %}
 {% load static %}
-<!doctype html>
-<html lang="en">
-
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Arousal-Valence Model</title>
+{% block css %}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="{% static 'style.css' %}">
-</head>
+{% endblock %}
 
-<body>
+{% block content %}
     <div class="container mt-5 p-4 bg-light rounded shadow">
         {% if msg == "" %}
-        <form class="row g-3" action="{% url 'home' %}" method="post">
+        <form class="row g-3" action="{% url 'home' game_id %}" method="post" id="emotionForm">
             {% csrf_token %}
             <div class="col-12 mb-4 main-container">
-                <h1 class="question mb-3">Arousal</h1>
-                <div class="form-check question-container options-container ">
-                    {% for choice in form.Arousal.field.choices %}
-                    <div class="flex-container mb-3 d-flex align-items-center">
-                        <img src="{% static 'images/Arousal' %}{{ choice.0 }}.png" alt="arousal" width="100" height="100" class="me-3">
-                        <input class="form-check-input option" type="radio" name="{{ form.Arousal.name }}" id="id_arousal_{{ forloop.counter }}" value="{{ choice.0 }}">
-                        <label class="form-check-label ms-2" for="id_arousal_{{ forloop.counter }}">
-                            {{ choice.1 }}
-                        </label>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-
-
-            <div class="col-12 mb-4 main-container">
                 <h1 class="question mb-3">Valence</h1>
-                <div class="form-check question-container options-container ">
+                <div class="form-check question-container options-container">
                     {% for choice in form.Valence.field.choices %}
                     <div class="flex-container mb-3 d-flex align-items-center">
-                        <img src="{% static 'images/Valence' %}{{ choice.0 }}.png" alt="valence" width="100" height="100" class="me-3">
+                        <img src="{% static 'images/Valence' %}{{ choice.0 }}.jpg" alt="valence" width="100" height="100" class="me-3">
                         <input class="form-check-input option" type="radio" name="{{ form.Valence.name }}" id="id_valence_{{ forloop.counter }}" value="{{ choice.0 }}">
                         <label class="form-check-label ms-2" for="id_valence_{{ forloop.counter }}">
                             {{ choice.1 }}
@@ -47,14 +26,27 @@
                 </div>
             </div>
 
-
+            <div class="col-12 mb-4 main-container">
+                <h1 class="question mb-3">Arousal</h1>
+                <div class="form-check question-container options-container">
+                    {% for choice in form.Arousal.field.choices %}
+                    <div class="flex-container mb-3 d-flex align-items-center">
+                        <img src="{% static 'images/Arousal' %}{{ choice.0 }}.jpg" alt="arousal" width="100" height="100" class="me-3">
+                        <input class="form-check-input option" type="radio" name="{{ form.Arousal.name }}" id="id_arousal_{{ forloop.counter }}" value="{{ choice.0 }}">
+                        <label class="form-check-label ms-2" for="id_arousal_{{ forloop.counter }}">
+                            {{ choice.1 }}
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
 
             <div class="col-12 mb-4 main-container">
                 <h1 class="question mb-3">Intensity</h1>
-                <div class="form-check question-container options-container ">
+                <div class="form-check question-container options-container">
                     {% for choice in form.Intensity.field.choices %}
                     <div class="flex-container mb-3 d-flex align-items-center">
-                        <img src="{% static 'images/intensity' %}{{ choice.0 }}.png" alt="intensity" width="100" height="100" class="me-3">
+                        <img src="{% static 'images/intensity' %}{{ choice.0 }}.jpg" alt="intensity" width="100" height="100" class="me-3">
                         <input class="form-check-input option" type="radio" name="{{ form.Intensity.name }}" id="id_intensity_{{ forloop.counter }}" value="{{ choice.0 }}">
                         <label class="form-check-label ms-2" for="id_intensity_{{ forloop.counter }}">
                             {{ choice.1 }}
@@ -63,12 +55,6 @@
                     {% endfor %}
                 </div>
             </div>
-
-
-
-
-
-
 
             <div class="col-12">
                 <button type="submit" class="btn btn-primary">Submit</button>
@@ -82,6 +68,16 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-</body>
+    <script>
+        document.getElementById('emotionForm').addEventListener('submit', function(event) {
+            var valenceChecked = document.querySelector('input[name="{{ form.Valence.name }}"]:checked');
+            var arousalChecked = document.querySelector('input[name="{{ form.Arousal.name }}"]:checked');
+            var intensityChecked = document.querySelector('input[name="{{ form.Intensity.name }}"]:checked');
 
-</html>
+            if (!valenceChecked || !arousalChecked || !intensityChecked) {
+                event.preventDefault();
+                alert('Please make a selection for Valence, Arousal, and Intensity.');
+            }
+        });
+    </script>
+{% endblock %}
