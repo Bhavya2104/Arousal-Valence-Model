@@ -187,9 +187,10 @@ def report(request):
 
     averaged_sessions = []
     for gameid, values in game_sessions.items():
-        avg_valence = np.mean(values['valence'])
-        avg_arousal = np.mean(values['arousal'])
-        avg_intensity = np.mean(values['intensity'])
+        # avg_valence = np.mean(values['valence'])
+        avg_valence = "{:.2f}".format(np.mean(values['valence']))
+        avg_arousal = "{:.2f}".format(np.mean(values['arousal']))
+        avg_intensity = "{:.2f}".format(np.mean(values['intensity']))
         averaged_sessions.append({
             'gameid': gameid,
             'avg_valence': avg_valence,
@@ -231,13 +232,16 @@ def generate_graph(request):
     avg_arousals = [session['avg_arousal'] for session in averaged_sessions]
     avg_intensities = [session['avg_intensity'] for session in averaged_sessions]
 
-    plt.figure(figsize=(10, 5))
+    plt.figure(figsize=(10, 10))
 
     scatter = plt.scatter(avg_valences, avg_arousals, c=avg_intensities, cmap='viridis', alpha=0.6, edgecolors='w', s=100)
     plt.colorbar(scatter, label='Intensity')
     plt.xlabel('Average Valence')
     plt.ylabel('Average Arousal')
     plt.title('2D Graph of Average Valence and Arousal')
+
+    plt.axhline(y=0, color='k', linestyle='--')  # Add horizontal line at y=0
+    plt.axvline(x=0, color='k', linestyle='--')  # Add vertical line at x=0
 
     for i, game_id in enumerate(game_ids):
         plt.annotate(game_id, (avg_valences[i], avg_arousals[i]))
