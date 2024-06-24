@@ -3,11 +3,13 @@ from .forms import ArousalForm
 from django.shortcuts import redirect
 # Create your views here.
 from .models import GameSession
-import matplotlib.pyplot as plt
 import numpy as np
+import matplotlib.pyplot as plt
+import mpld3
+from mpld3 import plugins
 from io import BytesIO
 from django.http import HttpResponse
-
+import random
 
 
 def get_emotion(valence, arousal, intensity):
@@ -143,17 +145,26 @@ def get_emotion(valence, arousal, intensity):
 # def home(request):
 def home(request,id):
    form = ArousalForm()
-   msg = ""
+   msg1 = "" 
+   msg2 = ""
+   msg3 = ""
+   msg4 = ""
    if(request.method == 'POST'):
       ArousalVal = request.POST['Arousal']
       ValenceVal = request.POST['Valence']
       IntensityVal = request.POST['Intensity']
-      msg = ValenceVal+ArousalVal+IntensityVal+get_emotion(ArousalVal, ValenceVal, IntensityVal)
+      msg1 = "Valence: " + ValenceVal
+      msg2 = "Arousal: " + ArousalVal
+      msg3 = "Intensity: " + IntensityVal
+      msg4 = "Evaluted emotion: "+ get_emotion(ArousalVal, ValenceVal, IntensityVal)
       session = GameSession(gameid=id, arousal=ArousalVal, valence=ValenceVal, intensity=IntensityVal)
       session.save()
    context = {
       'form': form,
-      'msg': msg,
+      'msg1': msg1,
+      'msg2': msg2,
+      'msg3': msg3,
+      'msg4': msg4,
       'game_id':id
    }
    # print(form)
@@ -187,7 +198,6 @@ def report(request):
 
     averaged_sessions = []
     for gameid, values in game_sessions.items():
-        # avg_valence = np.mean(values['valence'])
         avg_valence = "{:.2f}".format(np.mean(values['valence']))
         avg_arousal = "{:.2f}".format(np.mean(values['arousal']))
         avg_intensity = "{:.2f}".format(np.mean(values['intensity']))
@@ -202,6 +212,7 @@ def report(request):
         'sessions': averaged_sessions
     }
     return render(request, 'report.html', context)
+
 
 
 def generate_graph(request):
@@ -232,21 +243,48 @@ def generate_graph(request):
     avg_arousals = [session['avg_arousal'] for session in averaged_sessions]
     avg_intensities = [session['avg_intensity'] for session in averaged_sessions]
 
-    plt.figure(figsize=(10, 10))
+    fig, ax = plt.subplots(figsize=(8,8))
+    ax.set_facecolor('#f5f5f5')  # Set background color to off-white
 
-    scatter = plt.scatter(avg_valences, avg_arousals, c=avg_intensities, cmap='viridis', alpha=0.6, edgecolors='w', s=100)
-    plt.colorbar(scatter, label='Intensity')
-    plt.xlabel('Average Valence')
-    plt.ylabel('Average Arousal')
-    plt.title('2D Graph of Average Valence and Arousal')
+    jitter_amount = 0.05
+    jittered_valences = [val + random.uniform(-jitter_amount, jitter_amount) for val in avg_valences]
+    jittered_arousals = [ar + random.uniform(-jitter_amount, jitter_amount) for ar in avg_arousals]
+    
+    
+    scatter = ax.scatter(jittered_valences, avg_arousals, c=avg_intensities, cmap='viridis', alpha=0.6, edgecolors='w', s=100)
 
-    plt.axhline(y=0, color='k', linestyle='--')  # Add horizontal line at y=0
-    plt.axvline(x=0, color='k', linestyle='--')  # Add vertical line at x=0
+    # Add horizontal and vertical dashed lines at y=2.5 and x=2.5
 
+    ax.set_xlabel('Average Valence', fontsize=18,labelpad=20)
+    ax.set_ylabel('Average Arousal', fontsize=18,labelpad=20)
+    ax.set_title('2D Graph of Average Valence and Arousal', fontsize=18, pad=20)  # Larger font size for title
+
+    # Set the limits of the axes to fixed values
+    plt.xlim([0,5.1])
+    plt.ylim([0,5.1])
+    axis  = plt.gca()
+    plt.plot(axis.get_xlim(), [2.5,2.5], 'k--')
+    plt.plot([2.5,2.5], axis.get_ylim(), 'k--')
+
+    tooltip_texts = []
     for i, game_id in enumerate(game_ids):
-        plt.annotate(game_id, (avg_valences[i], avg_arousals[i]))
+        valence, arousal, intensity = str(round(avg_valences[i])), str(round(avg_arousals[i])), str(round(avg_intensities[i]))
+        emotion = get_emotion(valence, arousal, intensity)
+        tooltip_texts.append(f'<span style="font-size: 14px;"><b>Game ID:</b> {game_id}<br><b>Valence:</b> {avg_valences[i]:.2f}<br><b>Arousal:</b> {avg_arousals[i]:.2f}<br><b>Intensity:</b> {avg_intensities[i]:.2f}<br><b>Emotion:</b> {emotion}</span>')
 
-    buffer = BytesIO()
-    plt.savefig(buffer, format='png')
-    buffer.seek(0)
-    return HttpResponse(buffer.getvalue(), content_type='image/png')
+    tooltip = plugins.PointHTMLTooltip(scatter, labels=tooltip_texts, voffset=10, hoffset=10, css=("""
+            .mpld3-tooltip {
+                border: solid 2px rgba(0,0,0,0.5);
+                background: rgba(255,255,255,0.8);
+                color: black;
+                font-size: 12px;
+                padding: 5px;
+            }
+        """))
+    plugins.connect(fig, tooltip)
+    # fig.tight_layout(mar=20)
+    html_graph = mpld3.fig_to_html(fig)
+    context = {
+        'graph': html_graph
+    }
+    return render(request, 'graph.html', context)

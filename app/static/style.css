@@ -1,5 +1,5 @@
 body {
-    font-family: Arial, sans-serif;
+    font-family: "Montserrat", sans-serif;
     margin: 0;
     /* padding: 3%; */
     background-color: #f0f0f0;
@@ -50,6 +50,17 @@ body {
 .form-check-label
 {
     margin-top: -20px;
+}
+
+h4{
+    font-family: "Montserrat", sans-serif;
+    margin-top: 4px;
+    margin-bottom: 4px;
+}
+
+.last-msg
+{
+    margin-bottom:50px;
 }
 
 
