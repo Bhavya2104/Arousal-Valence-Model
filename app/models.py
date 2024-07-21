@@ -1,6 +1,7 @@
 from django.db import models
 
 # Create your models here.
+
 class GameSession(models.Model):
     gameid = models.IntegerField(blank=False)
     valence = models.FloatField(blank=False)

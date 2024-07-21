@@ -31,13 +31,25 @@
                     <button type="submit" class="btn btn-outline-primary" style="font-size: 1.1rem;">Generate Graph</button>
                 </form>
                 
-                <form method="post" action="{% url 'erase' %}" class="d-inline d-inline-more">
+                <form method="post" action="{% url 'erase' %}" class="d-inline d-inline-more" id="eraseDataForm">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-outline-danger me-2" style="font-size: 1.1rem;">Erase Data</button>
                 </form>
             </div>
         </div>
     </nav>
-
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('eraseDataForm');
+    
+            form.addEventListener('submit', function(event) {
+                const isConfirmed = confirm('Are you sure you want to erase all data? This action cannot be undone.');
+    
+                if (!isConfirmed) {
+                    event.preventDefault(); // Prevent form submission
+                }
+            });
+        });
+    </script>
 {% block content%}
 {% endblock%}
