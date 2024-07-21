@@ -179,7 +179,7 @@ def game(request):
 
 def erase(request):
    if request.method == 'POST':
-        # GameSession.objects.all().delete()
+        GameSession.objects.all().delete()
         return redirect('game')  # Redirect to the home view or any other view you prefer
    # return render(request, 'confirm_delete.html')
    # return redirect('game')
